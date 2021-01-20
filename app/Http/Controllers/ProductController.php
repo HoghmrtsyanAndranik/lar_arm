@@ -1,0 +1,104 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Product;
+use App\ProductPhoto;
+use Redirect;
+use Validator;
+use Session;
+use App\Cart;
+
+class ProductController extends Controller
+{
+    public function product(){
+        $products = Product::where("user_id","!=",Session::get("user_id"))->get();
+        $cart = Cart::where("user_id","=",Session::get("user_id"))->get();
+//        dd($products[0]->photo,$products[0]->user);
+//        dd($products[0]->photo[0]->url);
+        return view("product")->with("products",$products)->with("cart",$cart);
+
+    }
+
+    public function addProduct(){
+        return view("addProduct");
+    }
+
+    public function myProduct(){
+        $products = Product::where("user_id","=",Session::get("user_id"))->get();
+//        dd($products);
+        return view("myProduct")->with("products",$products);
+    }
+
+    public function addNewProduct(Request $r){
+        // dd($r->all());
+        $product = new Product();
+        $product->name = $r->name;
+        $product->price = $r->price;
+        $product->count = $r->count;
+        $product->description = $r->description;
+        $product->user_id = Session::get("user_id");
+        $product->save();
+        // dd($product->id);
+
+        if($r->hasfile('photo'))
+        {
+           foreach($r->file('photo') as $image)
+           {
+               $name=time().$image->getClientOriginalName();
+               $image->move(public_path().'/img/', $name);
+               $photo = new ProductPhoto;
+               $photo->url = $name;
+               $photo->product_id = $product->id;
+               $photo->save();
+           }
+        }
+        return Redirect::to('/addproduct');
+
+    }
+
+    public function item($id){
+//        dd($id);
+        $product = Product::where('id',$id)->first();
+        return view('productitem')->with('product',$product);
+    }
+
+    public function myitem($id){
+        $product = Product::where('id',$id)->first();
+        return view('myproductitem')->with('product',$product);
+    }
+
+    public function editmyitem($id){
+        $product = Product::where('id',$id)->first();
+        return view('myproductEdititem')->with('product',$product);
+    }
+//    public function m
+
+    public function editmyitemdata(Request $r){
+
+//        dd($r->all());
+        Product::where('id',$r->id)->update(['name' => $r->name, 'price' => $r->price, 'count' => $r->count, 'description' => $r->description]);
+          if($r->hasfile('photo'))
+            {
+               foreach($r->file('photo') as $image)
+               {
+                   $name=time().$image->getClientOriginalName();
+                   $image->move(public_path().'/img/', $name);
+                   $photo = new ProductPhoto;
+                   $photo->url = $name;
+                   $photo->product_id = $r->id;
+                   $photo->save();
+               }
+            }
+        return Redirect::to('/myproduct/item/'.$r->id);
+    }
+
+    public function  deleteItemPhoto($id){
+        $photo = ProductPhoto::where('id',$id)->first();
+        ProductPhoto::where('id',$id)->delete();
+        return Redirect::to('/myproduct/item/'.$photo->id);
+    }
+
+
+}
