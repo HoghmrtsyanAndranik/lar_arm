@@ -12,33 +12,54 @@ use App\Cart;
 
 class ProductController extends Controller
 {
-    public function product(){
+    public function products(){
+     
         $products = Product::where("user_id","!=",Session::get("user_id"))->get();
+      
         $cart = Cart::where("user_id","=",Session::get("user_id"))->get();
+        
 //        dd($products[0]->photo,$products[0]->user);
 //        dd($products[0]->photo[0]->url);
-        return view("product")->with("products",$products)->with("cart",$cart);
+        return view("products")->with("products",$products)->with("cart",$cart);
 
     }
 
     public function addProduct(){
+
         return view("addProduct");
     }
 
-    public function myProduct(){
+    public function myProducts(){
         $products = Product::where("user_id","=",Session::get("user_id"))->get();
-//        dd($products);
+    
         return view("myProduct")->with("products",$products);
     }
 
     public function addNewProduct(Request $r){
-        // dd($r->all());
+      //dd($r->all());die;
+      $validator = Validator::make($r->all(), [
+            'name' => 'required',
+            'price' => 'required|integer',
+            'count' => 'required|integer',
+            'description' => 'required'
+            
+        ]);
+
+        if ($validator->fails()) {
+
+            return redirect('/addproduct')
+                        ->withErrors($validator)
+                        ->withInput();
+        }
+
+
         $product = new Product();
         $product->name = $r->name;
         $product->price = $r->price;
         $product->count = $r->count;
         $product->description = $r->description;
         $product->user_id = Session::get("user_id");
+        $product->active=1;
         $product->save();
         // dd($product->id);
 
@@ -51,13 +72,19 @@ class ProductController extends Controller
                $photo = new ProductPhoto;
                $photo->url = $name;
                $photo->product_id = $product->id;
+
                $photo->save();
            }
         }
         return Redirect::to('/addproduct');
 
     }
+    public function deleteProduct($id){
+        Product::where("id","=",$id)->delete();
+         return Redirect::to('/myproduct');
 
+
+    }
     public function item($id){
 //        dd($id);
         $product = Product::where('id',$id)->first();
@@ -77,7 +104,7 @@ class ProductController extends Controller
 
     public function editmyitemdata(Request $r){
 
-//        dd($r->all());
+     
         Product::where('id',$r->id)->update(['name' => $r->name, 'price' => $r->price, 'count' => $r->count, 'description' => $r->description]);
           if($r->hasfile('photo'))
             {
@@ -96,8 +123,10 @@ class ProductController extends Controller
 
     public function  deleteItemPhoto($id){
         $photo = ProductPhoto::where('id',$id)->first();
+
         ProductPhoto::where('id',$id)->delete();
-        return Redirect::to('/myproduct/item/'.$photo->id);
+
+        return Redirect::to('/myproduct/item/'.$photo->product_id);
     }
 
 

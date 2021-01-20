@@ -1,18 +1,20 @@
 // alert('ok');
 $(document).ready(function(){
 $(document).on('click','.add-to-cart', function(){
-    const base_url = $("#base_url").val();
-    const token = $("#token").val();
+   const base_url = $("#base_url").val();
 
-    let id = $(this).attr('data-id');
-    // console.log(id);
+    let id = $(this).attr('id');
+   let token=$('#token').val(); 
+
+
 
     $.ajax({
         type: "post",
         url: base_url+"/addToCart",
         data: {id:id, _token:token},
         success: function (r) {
-            console.log(r);
+          
+           
         }
     })
 });
