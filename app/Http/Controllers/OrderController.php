@@ -10,59 +10,61 @@ use App\Product;
 use App\OrderDetails;
 use Illuminate\Support\Carbon;
 use Stripe;
-
+use Redirect;
 class OrderController extends Controller
 {
-//    public function order(){
-//        $order = new Order();
-//        $order->user_id = Session::get(('user_id'));
-//
-//        //getting totalsum
-//        $cartproducts = Cart::where('user_id',Session::get(('user_id')))->get();
-//        $totalSum = 0;
-//        foreach ($cartproducts as $cp){
-//
-//            //update product table count
-//            $upd = Product::where('id',$cp->product->id)->first();
-//            $updCount = $upd->count;
-//            $updCount -= $cp->count;
-//            $upd->count = $updCount;
-//            $upd->save();
-////            $affected = DB::table('users')
-////                ->where('id', 1)
-////                ->update(['votes' => 1]);
-//            //end updating product count
-//
-//
-//
-//            $price = $cp->product->price;
-//            $count = $cp->count;
-//            $sum = $price*$count;
-//            $totalSum += $sum;
-//        }
-////        $purchases = DB::table('transactions')
-////            ->join('categories', 'transactions.category_id', '=', 'categories.id')
-////            ->where('categories.kind', '=', 1)
-////            ->sum('transactions.amount');
-//        //end of getting totalsum
-//
-//        $order->total = $totalSum;
-//        $order->date = Carbon::today();
-//        $order->save();
-//
-////        Cart::where('user_id',Session::get('user_id'))->delete();
-//
-//        foreach($cartproducts as $cp){
-//            //filling orderdetails
-//            $orderDetails = new OrderDetails();
-//            $orderDetails->order_id = $order->id;
-//            $orderDetails->product_id = $cp->product_id;
-//            $orderDetails->count = $cp->count;
-//            $orderDetails->save();
-//            //end of filling details
-//        }
-//
-//    }// end function order
+   public function order(){
+       $order = new Order();
+       $order->user_id = Session::get(('user_id'));
+
+       //getting totalsum
+       $cartproducts = Cart::where('user_id',Session::get(('user_id')))->get();
+       $totalSum = 0;
+       foreach ($cartproducts as $cp){
+
+           //update product table count
+           $upd = Product::where('id',$cp->product->id)->first();
+           $updCount = $upd->count;
+           $updCount -= $cp->count;
+           $upd->count = $updCount;
+           $upd->save();
+//            $affected = DB::table('users')
+//                ->where('id', 1)
+//                ->update(['votes' => 1]);
+           //end updating product count
+
+
+
+           $price = $cp->product->price;
+           $count = $cp->count;
+           $sum = $price*$count;
+           $totalSum += $sum;
+       }
+//        $purchases = DB::table('transactions')
+//            ->join('categories', 'transactions.category_id', '=', 'categories.id')
+//            ->where('categories.kind', '=', 1)
+//            ->sum('transactions.amount');
+       //end of getting totalsum
+
+       $order->total = $totalSum;
+       $order->date = Carbon::today();
+       $order->save();
+
+//        Cart::where('user_id',Session::get('user_id'))->delete();
+
+       foreach($cartproducts as $cp){
+           //filling orderdetails
+           $orderDetails = new OrderDetails();
+           $orderDetails->order_id = $order->id;
+           $orderDetails->product_id = $cp->product_id;
+           $orderDetails->count = $cp->count;
+           $orderDetails->save();
+           //end of filling details
+       }
+       Cart::where('user_id',Session::get(('user_id')))->delete();
+       return Redirect::to("/");
+
+   }// end function order
 
 
     public function stripe(){
@@ -79,7 +81,9 @@ class OrderController extends Controller
     }
 
     public function stripePost(Request $request){
+        
         $cartproducts = Cart::where('user_id',Session::get(('user_id')))->get();
+   
         $totalSum = 0;
         foreach ($cartproducts as $cp){
             $price = $cp->product->price;
@@ -87,7 +91,9 @@ class OrderController extends Controller
             $sum = $price*$count;
             $totalSum += $sum;
         }
-        Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
+         dd($request);
+       //Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
+         Stripe\Stripe::setApiKey('sk_test_51GtUiCFmAtF25QUUy8aPcVEqjByAcyiZgBiyrdlnqpvprZ5l4GBximePcjHxUxGDikPYip0zHIxKBS8ioOP8VfJR00OCCdoxpM');
         Stripe\Charge::create ([
             "amount" => 100 * $totalSum,
             "currency" => "usd",

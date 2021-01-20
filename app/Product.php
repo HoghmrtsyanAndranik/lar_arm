@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
-    public $table="product";
+    public $table="products";
     public $timestamps=false;
 
     public function photo(){

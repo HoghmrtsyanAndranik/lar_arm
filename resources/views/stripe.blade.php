@@ -1,7 +1,4 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Laravel 5 - Stripe Payment Gateway Integration Example - ItSolutionStuff.com</title>
+@extends('layouts.userlayout')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <style type="text/css">
@@ -21,12 +18,18 @@
             width: 61%;
         }
     </style>
-</head>
-<body>
 
+
+
+<link rel="stylesheet" type="text/css" href="{{asset('css/internal.css')}}">
+
+@section('title','Stripe')
+
+@section('content')
+</head>
 <div class="container">
 
-    <h1>Laravel 5 - Stripe Payment Gateway Integration Example <br/> ItSolutionStuff.com</h1>
+    <h1>Payment</h1>
 
     <div class="row">
         <div class="col-md-6 col-md-offset-3">
@@ -48,9 +51,7 @@
                         </div>
                     @endif
 
-                    <form role="form" action="{{ route('stripe.post') }}" method="post" class="require-validation"
-                          data-cc-on-file="false"
-                          data-stripe-publishable-key="{{ env('STRIPE_KEY') }}"
+                    <form role="form" action="{{ url('/stripePost') }}" method="post" class="
                           id="payment-form">
                         @csrf
 
@@ -94,9 +95,9 @@
                             </div>
                         </div>
 
-                        <div class="row">
+                        <div class="form-row row">
                             <div class="col-xs-12">
-                                <button class="btn btn-primary btn-lg btn-block" type="submit">Pay Now {{$totalSum}}</button>
+                                <button class="btn btn-primary btn-lg " type="submit">Pay Now {{$totalSum}}</button>
                             </div>
                         </div>
 
@@ -166,4 +167,4 @@
 
     });
 </script>
-</html>
+@endsection
