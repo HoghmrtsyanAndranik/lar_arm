@@ -18,7 +18,7 @@ class UserController extends Controller
 
 
        return view('home');
-       // return view('layouts/userlayout');
+      
     }
 
     function signup() {
